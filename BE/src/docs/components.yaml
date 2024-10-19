@@ -1,0 +1,108 @@
+# Common references
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true # Returned by HTTP GET
+        name:
+          type: string
+          description: contact name
+        Email:
+          type: string
+          format: Email
+          description: contact Email
+        address:
+          type: string
+          description: contact address
+        phone:
+          type: string
+          description: contact phone number
+        favorite:
+          type: integer
+          enum: [0, 1]
+          default: 0
+          description: favorite contact
+        avatar:
+          type: string
+          readOnly: true # Returned by HTTP GET
+          description: contact avatar file path
+        avatarFile:
+          type: string
+          format: binary
+          writeOnly: true # Used in POST/PUT/PATCH
+          description: contact avatar file
+
+  PaginationMetadata:
+    type: object
+    properties:
+      totalRecords:
+        type: integer
+        default: 0
+        description: The total number of records
+      firstPage:
+        type: integer
+        default: 1
+        description: The first page
+      lastPage:
+        type: integer
+        default: 1
+        description: The last page
+      page:
+        type: integer
+        default: 1
+        description: The current page
+      limit:
+        type: integer
+        default: 5
+        description: The number of records per page
+
+  response:
+    "200NoData":
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The response status
+                enum:
+                  - success
+              data:
+                type: object
+                nullable: true
+                default: null
+                description: The response data
+
+  parameters:
+    contactIdParam:
+      name: id
+      description: Contact ID
+      required: true
+      in: path
+      schema:
+        type: integer
+
+    limitParam:
+      name: limit
+      description: Number of records per page
+      in: query
+      schema:
+        type: integer
+        default: 5
+        minimum: 1
+        maximum: 100
+      required: false
+
+    pageParam:
+      name: page
+      description: Page number of records
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      required: false
