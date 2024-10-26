@@ -3,10 +3,6 @@ const ApiError = require("../api-error");
 const JSend = require("../jsend");
 
 async function createProductImage(req, res, next) {
-  if (!req.body?.name || typeof req.body.name !== "string") {
-    return next(new ApiError(400, "Name should be a non-empty string"));
-  }
-
   try {
     const image = await productImagesService.createProductImage({
       ...req.body,

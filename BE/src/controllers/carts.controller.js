@@ -3,88 +3,49 @@ const ApiError = require("../api-error");
 const JSend = require("../jsend");
 
 async function createCart(req, res, next) {
-  if (!req.body?.cart_name || typeof req.body.cart_name !== "string") {
-    return next(new ApiError(400, "Name should be a non-empty string"));
-  }
-
   try {
     const cart = await cartsService.createCart({
       ...req.body,
-      CreatedBy: req.user.UserID
+      UserID: req.user.UserID,
+      CreatedBy: req.user.UserID,
     });
 
-    return res
-      .status(201)
-      .set({
-        Location: `${req.baseUrl}/${cart.id}`,
-      })
-      .json(JSend.success({ cart }));
+    return res.status(201).json(JSend.success({ cart }));
+  } catch (error) {
+    console.log(error);
+    return next(new ApiError(500, "An error occurred while creating the cart"));
+  }
+}
+
+async function addCartItem(req, res, next) {
+  try {
+    const cartItem = await cartsService.addCartItem(
+      req.user.UserID,
+      req.body.data.item
+    );
+
+    return res.status(201).json(JSend.success({ cartItem }));
   } catch (error) {
     console.log(error);
     return next(
-      new ApiError(500, "An error occurred while creating the cart")
+      new ApiError(500, "An error occurred while creating the cart item")
     );
   }
 }
 
-async function getCartsByFilter(req, res, next) {
-  let result = {
-    carts: [],
-    metadata: {
-      totalRecords: 0,
-      firstPage: 1,
-      lastPage: 1,
-      page: 1,
-      limit: 5,
-    },
-  };
-
+async function deleteCart(req, res, next) {
   try {
-    result = await cartsService.getManyCarts(req.query);
+    await cartsService.deleteCart(req.user.UserID);
+    return res.json(JSend.success());
   } catch (error) {
     console.log(error);
-    return next(
-      new ApiError(500, "An error occurred while retrieving carts")
-    );
-  }
-  return res.json(
-    JSend.success({
-      carts: result.carts,
-      metadata: result.metadata,
-    })
-  );
-}
-
-async function getCart(req, res, next) {
-  const { id } = req.params;
-
-  try {
-    const cart = await cartsService.getCartById(id);
-    if (!cart) {
-      return next(new ApiError(404, "Cart not found"));
-    }
-    return res.json(JSend.success({ cart }));
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, `Error retrieving cart with id=${id}`));
+    return next(new ApiError(500, `Error`));
   }
 }
 
-async function updateCart(req, res, next) {
-  if (Object.keys(req.body).length === 0 && !req.file) {
-    return next(new ApiError(400, "Data to update can not be empty"));
-  }
-
-  const { id } = req.params;
-
+async function updateCartItem(req, res, next) {
   try {
-    const updated = await cartsService.updateCart(id, {
-      ...req.body,
-      UpdatedBy: req.user.UserID
-    });
-    if (!updated) {
-      return next(new ApiError(404, "Cart not found"));
-    }
+    const updated = await cartsService.updateCartItem(req.body.data);
     return res.json(
       JSend.success({
         cart: updated,
@@ -92,48 +53,36 @@ async function updateCart(req, res, next) {
     );
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, `Error updating cart with id=${id}`));
+    return next(new ApiError(500, `Error`));
   }
 }
 
-async function deleteCart(req, res, next) {
-  const { id } = req.params;
-
+async function deleteCartItem(req, res, next) {
+  const { CartItemID } = req.params;
   try {
-    const deleted = await cartsService.deleteCart(id, req.user.UserID);
-    if (!deleted) {
-      return next(new ApiError(404, "Cart not found"));
-    }
+    await cartsService.deleteCartItem(CartItemID);
     return res.json(JSend.success());
   } catch (error) {
     console.log(error);
-    return next(new ApiError(500, `Could not delete cart with id=${id}`));
+    return next(new ApiError(500, `Error`));
   }
 }
 
-async function deleteMultiCarts(req, res, next) {
-  const { cartIds } = req.body;
-
-  if (!Array.isArray(cartIds) || cartIds.length === 0) {
-    return next(new ApiError(400, "Invalid cart IDs"));
-  }
-
+async function getCartItems(req, res, next) {
   try {
-    await cartsService.deleteCartsByIds(cartIds, req.user.UserID);
-    return res.json(JSend.success());
+    const cartitems = await cartsService.getCartItems(req.user.UserID);
+    return res.json(JSend.success({ cartitems }));
   } catch (error) {
     console.log(error);
-    return next(
-      new ApiError(500, "An error occurred while removing carts")
-    );
+    return next(new ApiError(500, "Error"));
   }
 }
 
 module.exports = {
-  getCartsByFilter,
-  deleteMultiCarts,
-  getCart,
+  addCartItem,
+  updateCartItem,
+  deleteCartItem,
   createCart,
-  updateCart,
+  getCartItems,
   deleteCart,
 };

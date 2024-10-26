@@ -6,15 +6,15 @@ const router = express.Router();
 module.exports.setup = (app) => {
   app.use("/api/v1/carts", router);
   
-  router.get("/", cartsController.getCartsByFilter);
+  router.get("/", authenticateToken, cartsController.getCartItems);
 
-  router.post("/", authenticateToken, cartsController.createCart);
+  router.put("/", authenticateToken, cartsController.updateCartItem);
 
-  router.delete("/", authenticateToken, cartsController.deleteMultiCarts);
+  router.post("/create-cart", authenticateToken, cartsController.createCart);
 
-  router.get("/:id", cartsController.getCart);
+  router.post("/create-cart-item", authenticateToken, cartsController.addCartItem);
 
-  router.put("/:id", authenticateToken, cartsController.updateCart);
+  router.delete("/delete-cart-item/:CartItemID", authenticateToken, cartsController.deleteCartItem);
 
-  router.delete("/:id", authenticateToken, cartsController.deleteCart);
+  router.delete("/delete-cart", authenticateToken, cartsController.deleteCart);
 };

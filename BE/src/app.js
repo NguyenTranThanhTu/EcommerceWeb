@@ -8,7 +8,6 @@ const productImagesRouter = require("./routes/product-images.router");
 const ordersRouter = require("./routes/orders.router");
 const orderItemsRouter = require("./routes/order-items.router");
 const cartsRouter = require("./routes/carts.router");
-const cartItemsRouter = require("./routes/cart-items.router");
 const authRouter = require("./routes/auth.router");
 const {
   resourceNotFound,
@@ -33,7 +32,6 @@ productImagesRouter.setup(app);
 ordersRouter.setup(app);
 orderItemsRouter.setup(app);
 cartsRouter.setup(app);
-cartItemsRouter.setup(app);
 authRouter.setup(app);
 app.all("*", methodNotAllowed);
 
