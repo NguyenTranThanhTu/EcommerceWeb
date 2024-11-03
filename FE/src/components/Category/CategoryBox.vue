@@ -12,7 +12,11 @@
       <p class="card-text">
         {{ viewcategory.description }}
       </p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+      <RouterLink :to="{name: 'EditCategory', params: {id: category.id}}">
+        <button class="btn btn-primary">Edit </button>
+      </RouterLink>
+        
+     
     </div>
   </div>
 </template>
